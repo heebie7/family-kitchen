@@ -21,11 +21,11 @@ const DISH_EMOJI = {
   'banana': '🍌', 'гранола': '🥣', 'egg': '🥚', 'лобио': '🫘',
   'врап': '🌯', 'пудинг': '🍮', 'шакшука': '🍳', 'оладьи': '🥞',
   'плов': '🍛', 'помидор': '🍅', 'огурц': '🥒', 'филе': '🍗',
+  'от бабушки': '🎁', 'от оли': '🎁',
 };
 
 function getDishEmoji(name) {
   const lower = name.toLowerCase();
-  // Sort keys by length descending so longer matches take priority
   const sorted = Object.entries(DISH_EMOJI).sort((a, b) => b[0].length - a[0].length);
   for (const [key, emoji] of sorted) {
     if (lower.includes(key)) return emoji;
@@ -38,6 +38,7 @@ function getCookClass(cook) {
   if (c.includes('тима') || c === 'т') return 'tima';
   if (c.includes('катя') || c === 'к') return 'katya';
   if (c.includes('все') || c.includes('вместе')) return 'all';
+  if (c.includes('бабушк') || c.includes('оля')) return 'olya';
   return 'a';
 }
 
@@ -46,13 +47,13 @@ function getCookLabel(cook) {
   if (c.includes('тима') || c === 'т') return 'Тима';
   if (c.includes('катя') || c === 'к') return 'Катя';
   if (c.includes('все') || c.includes('вместе')) return 'Все вместе';
+  if (c.includes('бабушк') || c.includes('оля')) return 'Оля';
   if (c === 'а' || c.includes('мам')) return 'А';
   return cook;
 }
 
 function getTodayIndex() {
   const d = new Date().getDay();
-  // JS: 0=Sun, 1=Mon...6=Sat → we need 0=Mon...6=Sun
   return d === 0 ? 6 : d - 1;
 }
 
@@ -61,7 +62,6 @@ function findDish(dishes, mealName) {
   const lower = mealName.toLowerCase();
   return dishes.find(d => {
     const dLower = d.name.toLowerCase();
-    // Try exact or partial match
     return lower.includes(dLower) || dLower.includes(lower) ||
       lower.split(/\s*[+,]\s*/).some(part => dLower.includes(part.trim()));
   });
@@ -75,16 +75,72 @@ function scoreClass(val) {
   return 'low';
 }
 
-// Render a single meal item
-function renderMealItem(m, dishes) {
+// --- Edit mode ---
+let editMode = false;
+
+function toggleEditMode() {
+  editMode = !editMode;
+  document.body.classList.toggle('edit-mode', editMode);
+  const btn = document.getElementById('editModeBtn');
+  if (btn) btn.textContent = editMode ? 'Готово' : 'Изменить';
+  renderMenu(window._data);
+}
+
+// --- Meal actions ---
+function removeMeal(dayIdx, meal, mealIdx) {
+  const day = window._data.plan.days[dayIdx];
+  if (day[meal]) {
+    day[meal].splice(mealIdx, 1);
+  }
+  saveLocal();
+  renderMenu(window._data);
+}
+
+function toggleDone(dayIdx, meal, mealIdx) {
+  const day = window._data.plan.days[dayIdx];
+  if (day[meal] && day[meal][mealIdx]) {
+    const item = day[meal][mealIdx];
+    item.status = item.status === 'done' ? '' : 'done';
+  }
+  saveLocal();
+  renderMenu(window._data);
+}
+
+// --- localStorage ---
+function saveLocal() {
+  try {
+    localStorage.setItem('familyKitchenPlan', JSON.stringify(window._data.plan));
+  } catch (e) { /* ignore */ }
+}
+
+function loadLocal() {
+  try {
+    const saved = localStorage.getItem('familyKitchenPlan');
+    return saved ? JSON.parse(saved) : null;
+  } catch (e) { return null; }
+}
+
+function resetLocal() {
+  localStorage.removeItem('familyKitchenPlan');
+  location.reload();
+}
+
+// Render a single meal item with action buttons
+function renderMealItem(m, dishes, dayIdx, meal, mealIdx) {
   const dish = findDish(dishes, m.name);
   const emoji = getDishEmoji(m.name);
   const macros = dish ? `${dish.kcal} ккал / Б${dish.protein} Ж${dish.fat} У${dish.carbs}` : '';
   const isDone = m.status === 'done';
   const isLeftover = m.leftover;
 
+  const doneBtn = `<button class="meal-btn meal-btn-done ${isDone ? 'active' : ''}" onclick="toggleDone(${dayIdx},'${meal}',${mealIdx})" title="Готово">&#10003;</button>`;
+  const removeBtn = editMode ? `<button class="meal-btn meal-btn-remove" onclick="removeMeal(${dayIdx},'${meal}',${mealIdx})" title="Убрать">&#10005;</button>` : '';
+  const dragHandle = editMode ? '<span class="drag-handle">&#9776;</span>' : '';
+
   return `
-    <div class="meal-item ${isDone ? 'done' : ''} ${isLeftover ? 'leftover' : ''}">
+    <div class="meal-item ${isDone ? 'done' : ''} ${isLeftover ? 'leftover' : ''}"
+         data-day="${dayIdx}" data-meal="${meal}" data-idx="${mealIdx}">
+      ${dragHandle}
       <span class="meal-emoji">${emoji}</span>
       <div class="meal-info">
         <span class="meal-name">${m.name}</span>
@@ -92,19 +148,33 @@ function renderMealItem(m, dishes) {
       </div>
       ${isLeftover ? '<span class="leftover-badge">остатки</span>' : ''}
       ${m.cook && !isLeftover ? `<span class="cook-badge ${getCookClass(m.cook)}">${getCookLabel(m.cook)}</span>` : ''}
-      ${isDone ? '<span class="status-done">✓</span>' : ''}
+      <div class="meal-actions">
+        ${doneBtn}
+        ${removeBtn}
+      </div>
     </div>
   `;
 }
 
 // Render a meal section (lunch or dinner)
-function renderMealSection(label, items, dishes) {
-  if (!items || items.length === 0) return '';
-  const html = items.map(m => renderMealItem(m, dishes)).join('');
+function renderMealSection(label, items, dishes, dayIdx, meal) {
+  if (!items || items.length === 0) {
+    // In edit mode, show empty drop zone
+    if (editMode) {
+      return `
+        <div class="meal-section">
+          <div class="meal-section-label">${label}</div>
+          <div class="meals-list" data-day="${dayIdx}" data-meal="${meal}"></div>
+        </div>
+      `;
+    }
+    return '';
+  }
+  const html = items.map((m, i) => renderMealItem(m, dishes, dayIdx, meal, i)).join('');
   return `
     <div class="meal-section">
       <div class="meal-section-label">${label}</div>
-      <div class="meals-list">${html}</div>
+      <div class="meals-list" data-day="${dayIdx}" data-meal="${meal}">${html}</div>
     </div>
   `;
 }
@@ -124,9 +194,17 @@ function renderMenu(data) {
     const allDone = allItems.length > 0 && allItems.every(m => m.status === 'done');
     const hasAny = allItems.length > 0;
 
-    const lunchHTML = renderMealSection('Обед', day.lunch, dishes);
-    const dinnerHTML = renderMealSection('Ужин', day.dinner, dishes);
-    const contentHTML = hasAny ? lunchHTML + dinnerHTML : '<div class="empty-meal">Не запланировано</div>';
+    const lunchHTML = renderMealSection('Обед', day.lunch, dishes, i, 'lunch');
+    const dinnerHTML = renderMealSection('Ужин', day.dinner, dishes, i, 'dinner');
+
+    let contentHTML;
+    if (editMode) {
+      // Always show both sections in edit mode for drop targets
+      contentHTML = (lunchHTML || renderMealSection('Обед', [], dishes, i, 'lunch'))
+                  + (dinnerHTML || renderMealSection('Ужин', [], dishes, i, 'dinner'));
+    } else {
+      contentHTML = hasAny ? lunchHTML + dinnerHTML : '<div class="empty-meal">Не запланировано</div>';
+    }
 
     return `
       <div class="day-card ${isToday ? 'today' : ''} ${allDone ? 'done' : ''}">
@@ -138,13 +216,119 @@ function renderMenu(data) {
       </div>
     `;
   }).join('');
+
+  // Initialize drag & drop if in edit mode
+  if (editMode) {
+    initSortable();
+  }
 }
+
+// --- SortableJS ---
+let sortableInstances = [];
+
+function initSortable() {
+  // Destroy previous instances
+  sortableInstances.forEach(s => s.destroy());
+  sortableInstances = [];
+
+  document.querySelectorAll('.meals-list').forEach(list => {
+    const s = new Sortable(list, {
+      group: 'meals',
+      animation: 150,
+      handle: '.drag-handle',
+      ghostClass: 'drag-ghost',
+      chosenClass: 'drag-chosen',
+      dragClass: 'drag-active',
+      fallbackOnBody: true,
+      swapThreshold: 0.65,
+      onEnd: function(evt) {
+        const fromDay = parseInt(evt.from.dataset.day);
+        const fromMeal = evt.from.dataset.meal;
+        const toDay = parseInt(evt.to.dataset.day);
+        const toMeal = evt.to.dataset.meal;
+        const oldIdx = evt.oldIndex;
+        const newIdx = evt.newIndex;
+
+        const plan = window._data.plan.days;
+
+        // Remove from source
+        const srcArr = plan[fromDay][fromMeal] || [];
+        const [moved] = srcArr.splice(oldIdx, 1);
+        if (!moved) return;
+
+        // If moved to different meal type, clear leftover flag
+        if (fromMeal !== toMeal || fromDay !== toDay) {
+          moved.leftover = false;
+        }
+
+        // Insert into destination
+        if (!plan[toDay][toMeal]) plan[toDay][toMeal] = [];
+        plan[toDay][toMeal].splice(newIdx, 0, moved);
+
+        saveLocal();
+        renderMenu(window._data);
+      }
+    });
+    sortableInstances.push(s);
+  });
+}
+
+// --- Pantry ---
+const PANTRY_ITEMS = [
+  { id: 'филе', label: 'Филе', emoji: '🍗' },
+  { id: 'сыр', label: 'Сыр', emoji: '🧀' },
+  { id: 'хлеб', label: 'Хлеб', emoji: '🍞' },
+  { id: 'кетчуп', label: 'Кетчуп', emoji: '🟥' },
+  { id: 'майонез', label: 'Майонез', emoji: '⬜' },
+  { id: 'яйца', label: 'Яйца', emoji: '🥚' },
+  { id: 'масло', label: 'Масло', emoji: '🧈' },
+  { id: 'молоко', label: 'Молоко', emoji: '🥛' },
+];
+
+function loadPantry() {
+  try {
+    const saved = localStorage.getItem('familyKitchenPantry');
+    return saved ? JSON.parse(saved) : {};
+  } catch (e) { return {}; }
+}
+
+function savePantry(pantry) {
+  try {
+    localStorage.setItem('familyKitchenPantry', JSON.stringify(pantry));
+  } catch (e) { /* ignore */ }
+}
+
+function togglePantryItem(id) {
+  const pantry = loadPantry();
+  pantry[id] = !(pantry[id] !== false); // default true → toggle
+  savePantry(pantry);
+  renderPantry();
+}
+window.togglePantryItem = togglePantryItem;
+
+function renderPantry() {
+  const grid = document.getElementById('pantryGrid');
+  if (!grid) return;
+  const pantry = loadPantry();
+
+  grid.innerHTML = PANTRY_ITEMS.map(item => {
+    const have = pantry[item.id] !== false; // default: have it
+    return `
+      <button class="pantry-item ${have ? 'have' : 'need'}" onclick="togglePantryItem('${item.id}')">
+        <span class="pantry-emoji">${item.emoji}</span>
+        <span class="pantry-label">${item.label}</span>
+        <span class="pantry-status">${have ? '✓' : '!'}</span>
+      </button>
+    `;
+  }).join('');
+}
+
+// --- Shopping & Dishes ---
 
 function renderShopping(data) {
   const list = document.getElementById('shoppingList');
   const section = document.getElementById('shoppingSection');
 
-  // Generate shopping list from plan items with prep
   const items = data.plan.days
     .filter(d => d.prep && d.prep !== '—' && d.prep !== '')
     .map(d => ({ name: d.prep, forMeal: [...(d.lunch || []), ...(d.dinner || [])].filter(m => !m.leftover).map(m => m.name).join(' + ') }));
@@ -174,12 +358,7 @@ function renderDishes(data) {
 
   count.textContent = `(${filtered.length})`;
 
-  // Sort by average taste descending
-  const sorted = [...filtered].sort((a, b) => {
-    const avgA = avgTaste(a);
-    const avgB = avgTaste(b);
-    return avgB - avgA;
-  });
+  const sorted = [...filtered].sort((a, b) => avgTaste(b) - avgTaste(a));
 
   list.innerHTML = sorted.map(d => {
     const avg = avgTaste(d);
@@ -213,6 +392,12 @@ window.toggleShopItem = function(el) {
   checkbox.innerHTML = el.classList.contains('checked') ? '✓' : '';
 };
 
+// Expose functions to window for inline onclick
+window.toggleDone = toggleDone;
+window.removeMeal = removeMeal;
+window.toggleEditMode = toggleEditMode;
+window.resetLocal = resetLocal;
+
 // Navigation
 document.querySelectorAll('.nav-btn').forEach(btn => {
   btn.addEventListener('click', () => {
@@ -224,14 +409,13 @@ document.querySelectorAll('.nav-btn').forEach(btn => {
     const shopSection = document.getElementById('shoppingSection');
     const dishesView = document.getElementById('dishesView');
     const main = document.querySelector('main');
+    const editBar = document.getElementById('editBar');
 
-    // Show main for menu and shop views
     main.style.display = view === 'dishes' ? 'none' : '';
-    // Toggle individual sections within main
     menuGrid.style.display = view === 'menu' ? '' : 'none';
     shopSection.style.display = view === 'shop' ? '' : 'none';
-    // Toggle dishes view (outside main)
     dishesView.classList.toggle('hidden', view !== 'dishes');
+    if (editBar) editBar.style.display = view === 'menu' ? '' : 'none';
   });
 });
 
@@ -247,13 +431,20 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
 // Load data
 async function init() {
   try {
-    const resp = await fetch('data.json?v=3');
+    const resp = await fetch('data.json?v=' + Date.now());
     const data = await resp.json();
+
+    // Check localStorage for local edits
+    const localPlan = loadLocal();
+    if (localPlan && localPlan.week === data.plan.week) {
+      data.plan = localPlan;
+    }
+
     window._data = data;
     renderMenu(data);
     renderShopping(data);
     renderDishes(data);
-    // Default: menu view — hide shopping
+    renderPantry();
     document.getElementById('shoppingSection').style.display = 'none';
   } catch (e) {
     console.error('Failed to load data:', e);
