@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Семейная кухня</title>
+  <link rel="stylesheet" href="style.css?v=2">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header>
+    <h1>Семейная кухня</h1>
+    <p class="week-label" id="weekLabel"></p>
+  </header>
+
+  <main>
+    <section class="menu-grid" id="menuGrid"></section>
+
+    <section class="shopping" id="shoppingSection">
+      <h2>Закупки</h2>
+      <ul id="shoppingList"></ul>
+    </section>
+  </main>
+
+  <nav class="bottom-nav">
+    <button class="nav-btn active" data-view="menu">Меню</button>
+    <button class="nav-btn" data-view="dishes">Все блюда</button>
+    <button class="nav-btn" data-view="shop">Закупки</button>
+  </nav>
+
+  <section class="dishes-view hidden" id="dishesView">
+    <h2>Все блюда <span class="dish-count" id="dishCount"></span></h2>
+    <div class="filter-row">
+      <button class="filter-btn active" data-cat="all">Все</button>
+      <button class="filter-btn" data-cat="белок">Белок</button>
+      <button class="filter-btn" data-cat="гарнир">Гарнир</button>
+      <button class="filter-btn" data-cat="овощи">Овощи</button>
+      <button class="filter-btn" data-cat="целое">Целое</button>
+    </div>
+    <div class="dishes-list" id="dishesList"></div>
+  </section>
+
+  <script src="app.js?v=2"></script>
+</body>
+</html>
