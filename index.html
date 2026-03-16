@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Семейная кухня</title>
-  <link rel="stylesheet" href="style.css?v=3">
+  <link rel="stylesheet" href="style.css?v=6">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 </head>
@@ -14,10 +14,19 @@
     <p class="week-label" id="weekLabel"></p>
   </header>
 
+  <div class="edit-bar" id="editBar">
+    <button class="edit-bar-btn" id="editModeBtn" onclick="toggleEditMode()">Изменить</button>
+    <button class="edit-bar-btn reset-btn" onclick="resetLocal()">Сбросить</button>
+  </div>
+
   <main>
     <section class="menu-grid" id="menuGrid"></section>
 
     <section class="shopping" id="shoppingSection">
+      <div class="pantry-section" id="pantrySection">
+        <h2>Дома есть</h2>
+        <div class="pantry-grid" id="pantryGrid"></div>
+      </div>
       <h2>Закупки</h2>
       <ul id="shoppingList"></ul>
     </section>
@@ -41,6 +50,7 @@
     <div class="dishes-list" id="dishesList"></div>
   </section>
 
-  <script src="app.js?v=3"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/Sortable.min.js"></script>
+  <script src="app.js?v=6"></script>
 </body>
 </html>
