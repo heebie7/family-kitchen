@@ -1249,74 +1249,135 @@
       {
         "day": "Пн",
         "lunch": [
-          { "name": "Остатки с выходных", "cook": "", "leftover": true }
+          {
+            "name": "Остатки с выходных",
+            "cook": "",
+            "leftover": true
+          }
         ],
         "dinner": [
-          { "name": "Макароны", "cook": "Тима" },
-          { "name": "Фарш поджаренный", "cook": "Тима" },
-          { "name": "Помидоры", "cook": "Катя" }
+          {
+            "name": "Макароны",
+            "cook": "Тима"
+          },
+          {
+            "name": "Фарш поджаренный",
+            "cook": "Тима"
+          },
+          {
+            "name": "Помидоры",
+            "cook": "Катя"
+          }
         ],
         "prep": ""
       },
       {
         "day": "Вт",
         "lunch": [
-          { "name": "Макароны с фаршем", "cook": "", "leftover": true }
+          {
+            "name": "Макароны с фаршем",
+            "cook": "",
+            "leftover": true
+          }
         ],
         "dinner": [
-          { "name": "Рагу", "cook": "А" }
+          {
+            "name": "Рагу",
+            "cook": "А"
+          }
         ],
         "prep": ""
       },
       {
         "day": "Ср",
         "lunch": [
-          { "name": "Рагу", "cook": "", "leftover": true }
+          {
+            "name": "Рагу",
+            "cook": "",
+            "leftover": true
+          }
         ],
         "dinner": [
-          { "name": "Свинина в air fryer", "cook": "Тима" },
-          { "name": "Капустный салат", "cook": "Катя" }
+          {
+            "name": "Свинина в air fryer",
+            "cook": "Тима"
+          },
+          {
+            "name": "Капустный салат",
+            "cook": "Катя"
+          }
         ],
         "prep": ""
       },
       {
         "day": "Чт",
         "lunch": [
-          { "name": "Свинина + салат", "cook": "", "leftover": true }
+          {
+            "name": "Свинина + салат",
+            "cook": "",
+            "leftover": true
+          }
         ],
         "dinner": [
-          { "name": "Рис с морепродуктами", "cook": "А" },
-          { "name": "Огурцы", "cook": "Катя" }
+          {
+            "name": "Рис с морепродуктами",
+            "cook": "А"
+          },
+          {
+            "name": "Огурцы",
+            "cook": "Катя"
+          }
         ],
         "prep": "купить морепродукты"
       },
       {
         "day": "Пт",
         "lunch": [
-          { "name": "Рис с морепродуктами", "cook": "", "leftover": true }
+          {
+            "name": "Рис с морепродуктами",
+            "cook": "",
+            "leftover": true
+          }
         ],
         "dinner": [
-          { "name": "Шаурма", "cook": "все" }
+          {
+            "name": "Шаурма",
+            "cook": "все"
+          }
         ],
         "prep": ""
       },
       {
         "day": "Сб",
         "lunch": [
-          { "name": "Шаурма", "cook": "", "leftover": true }
+          {
+            "name": "Шаурма",
+            "cook": "",
+            "leftover": true
+          }
         ],
         "dinner": [
-          { "name": "Бигус", "cook": "А" }
+          {
+            "name": "Бигус",
+            "cook": "А"
+          }
         ],
         "prep": "купить капусту"
       },
       {
         "day": "Вс",
         "lunch": [
-          { "name": "Бигус", "cook": "", "leftover": true }
+          {
+            "name": "Бигус",
+            "cook": "",
+            "leftover": true
+          }
         ],
         "dinner": [
-          { "name": "Домашняя шаурма (1/2)", "cook": "Тима" }
+          {
+            "name": "Домашняя шаурма (1/2)",
+            "cook": "Тима"
+          }
         ],
         "prep": "запечь филе"
       }
