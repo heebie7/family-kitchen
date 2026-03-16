@@ -213,6 +213,7 @@ header h1 {
 .cook-badge.katya { background: #f3e5f5; color: #7b1fa2; }
 .cook-badge.a { background: var(--blue-light); color: var(--blue); }
 .cook-badge.all { background: var(--green-light); color: var(--green); }
+.cook-badge.olya { background: #fce4ec; color: #c2185b; }
 
 .prep-badge {
   display: inline-flex;
@@ -293,6 +294,74 @@ header h1 {
 
 .shop-item-name { font-weight: 600; }
 .shop-item-for { font-size: 0.8rem; color: var(--text-muted); margin-left: auto; }
+
+/* Pantry */
+.pantry-section {
+  margin-bottom: 20px;
+}
+
+.pantry-section h2 {
+  font-size: 1.1rem;
+  margin-bottom: 12px;
+  color: var(--text-muted);
+}
+
+.pantry-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.pantry-item {
+  background: var(--card);
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  padding: 10px 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: inherit;
+}
+
+.pantry-item:active {
+  transform: scale(0.95);
+}
+
+.pantry-item.have {
+  border-color: var(--green);
+  background: var(--green-light);
+}
+
+.pantry-item.need {
+  border-color: #ffcdd2;
+  background: #fff5f5;
+}
+
+.pantry-emoji {
+  font-size: 1.4rem;
+}
+
+.pantry-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.pantry-status {
+  font-size: 0.7rem;
+  font-weight: 800;
+}
+
+.pantry-item.have .pantry-status {
+  color: var(--green);
+}
+
+.pantry-item.need .pantry-status {
+  color: #e53935;
+}
 
 /* Bottom nav */
 .bottom-nav {
@@ -418,6 +487,140 @@ header h1 {
 .score-pill.high { background: var(--green-light); color: var(--green); }
 .score-pill.mid { background: #fff8e1; color: #f9a825; }
 .score-pill.low { background: #ffebee; color: #e53935; }
+
+/* Edit bar */
+.edit-bar {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  padding: 8px 16px 0;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.edit-bar-btn {
+  background: var(--card);
+  border: 1px solid var(--border);
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 6px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.15s;
+  color: var(--text-muted);
+}
+
+.edit-bar-btn:active {
+  transform: scale(0.95);
+}
+
+body.edit-mode .edit-bar-btn#editModeBtn {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+}
+
+.reset-btn {
+  font-size: 0.75rem;
+  padding: 6px 12px;
+  opacity: 0.6;
+}
+
+/* Meal action buttons */
+.meal-actions {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.meal-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border);
+  background: var(--card);
+  font-size: 0.75rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+  color: var(--text-muted);
+  padding: 0;
+}
+
+.meal-btn:active {
+  transform: scale(0.9);
+}
+
+.meal-btn-done.active {
+  background: var(--green);
+  border-color: var(--green);
+  color: white;
+}
+
+.meal-btn-remove {
+  border-color: #ffcdd2;
+  color: #e53935;
+}
+
+.meal-btn-remove:hover {
+  background: #ffebee;
+}
+
+/* Drag handle */
+.drag-handle {
+  cursor: grab;
+  color: var(--text-muted);
+  font-size: 1rem;
+  padding: 0 4px;
+  opacity: 0.5;
+  flex-shrink: 0;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.drag-handle:active {
+  cursor: grabbing;
+}
+
+/* Drag states */
+.drag-ghost {
+  opacity: 0.4;
+}
+
+.drag-chosen {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+}
+
+.drag-active {
+  background: var(--accent-light);
+  border-radius: 8px;
+}
+
+/* Edit mode: show drop zones */
+body.edit-mode .meals-list {
+  min-height: 36px;
+  border: 2px dashed transparent;
+  border-radius: 8px;
+  padding: 4px;
+  transition: border-color 0.15s;
+}
+
+body.edit-mode .meals-list:empty {
+  border-color: var(--border);
+}
+
+body.edit-mode .meals-list:empty::after {
+  content: 'перетащи сюда';
+  display: block;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  padding: 6px;
+  font-style: italic;
+}
 
 /* Empty state */
 .empty-meal {
