@@ -1,9 +1,12 @@
 // Emoji map for dish categories/names (placeholder until real images)
 const DISH_EMOJI = {
-  // Составные блюда (длинные ключи первыми — матчатся раньше)
+  // Составные блюда
   'макароны с фаршем': '🍝', 'рис с морепродуктами': '🦐',
   'свинина в air fryer': '🥩', 'капустный салат': '🥗',
-  'куриные ноги': '🍗',
+  'куриные ноги': '🍗', 'домашняя шаурма': '🌯',
+  'гречка по-тбилисски': '🫘', 'салат вальдорф': '🥗',
+  'киш с брокколи': '🥧', 'капустно-куриный': '🥧',
+  'кура в соусе': '🍗', 'свинина в духовке': '🥩',
   // Целые блюда
   'холодец': '🍖', 'котлеты': '🥩', 'свинина': '🥩', 'фарш': '🥩',
   'кура': '🍗', 'паштет': '🫕', 'exponenta': '🥤',
@@ -22,7 +25,9 @@ const DISH_EMOJI = {
 
 function getDishEmoji(name) {
   const lower = name.toLowerCase();
-  for (const [key, emoji] of Object.entries(DISH_EMOJI)) {
+  // Sort keys by length descending so longer matches take priority
+  const sorted = Object.entries(DISH_EMOJI).sort((a, b) => b[0].length - a[0].length);
+  for (const [key, emoji] of sorted) {
     if (lower.includes(key)) return emoji;
   }
   return '🍽';
