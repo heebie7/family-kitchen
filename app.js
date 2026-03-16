@@ -70,6 +70,40 @@ function scoreClass(val) {
   return 'low';
 }
 
+// Render a single meal item
+function renderMealItem(m, dishes) {
+  const dish = findDish(dishes, m.name);
+  const emoji = getDishEmoji(m.name);
+  const macros = dish ? `${dish.kcal} ккал / Б${dish.protein} Ж${dish.fat} У${dish.carbs}` : '';
+  const isDone = m.status === 'done';
+  const isLeftover = m.leftover;
+
+  return `
+    <div class="meal-item ${isDone ? 'done' : ''} ${isLeftover ? 'leftover' : ''}">
+      <span class="meal-emoji">${emoji}</span>
+      <div class="meal-info">
+        <span class="meal-name">${m.name}</span>
+        ${macros ? `<span class="meal-macros">${macros}</span>` : ''}
+      </div>
+      ${isLeftover ? '<span class="leftover-badge">остатки</span>' : ''}
+      ${m.cook && !isLeftover ? `<span class="cook-badge ${getCookClass(m.cook)}">${getCookLabel(m.cook)}</span>` : ''}
+      ${isDone ? '<span class="status-done">✓</span>' : ''}
+    </div>
+  `;
+}
+
+// Render a meal section (lunch or dinner)
+function renderMealSection(label, items, dishes) {
+  if (!items || items.length === 0) return '';
+  const html = items.map(m => renderMealItem(m, dishes)).join('');
+  return `
+    <div class="meal-section">
+      <div class="meal-section-label">${label}</div>
+      <div class="meals-list">${html}</div>
+    </div>
+  `;
+}
+
 // Render functions
 function renderMenu(data) {
   const grid = document.getElementById('menuGrid');
@@ -81,33 +115,19 @@ function renderMenu(data) {
 
   grid.innerHTML = plan.days.map((day, i) => {
     const isToday = i === todayIdx;
-    const allDone = day.meals && day.meals.every(m => m.status === 'done');
-    const hasMeals = day.meals && day.meals.length > 0;
+    const allItems = [...(day.lunch || []), ...(day.dinner || [])];
+    const allDone = allItems.length > 0 && allItems.every(m => m.status === 'done');
+    const hasAny = allItems.length > 0;
 
-    const mealsHTML = hasMeals ? day.meals.map(m => {
-      const dish = findDish(dishes, m.name);
-      const emoji = getDishEmoji(m.name);
-      const macros = dish ? `${dish.kcal} ккал / Б${dish.protein} Ж${dish.fat} У${dish.carbs}` : '';
-      const isDone = m.status === 'done';
-
-      return `
-        <div class="meal-item ${isDone ? 'done' : ''}">
-          <span class="meal-emoji">${emoji}</span>
-          <div class="meal-info">
-            <span class="meal-name">${m.name}</span>
-            ${macros ? `<span class="meal-macros">${macros}</span>` : ''}
-          </div>
-          ${m.cook ? `<span class="cook-badge ${getCookClass(m.cook)}">${getCookLabel(m.cook)}</span>` : ''}
-          ${isDone ? '<span class="status-done">✓</span>' : ''}
-        </div>
-      `;
-    }).join('') : '<div class="empty-meal">Не запланировано</div>';
+    const lunchHTML = renderMealSection('Обед', day.lunch, dishes);
+    const dinnerHTML = renderMealSection('Ужин', day.dinner, dishes);
+    const contentHTML = hasAny ? lunchHTML + dinnerHTML : '<div class="empty-meal">Не запланировано</div>';
 
     return `
       <div class="day-card ${isToday ? 'today' : ''} ${allDone ? 'done' : ''}">
         <div class="day-label">${day.day}</div>
         <div class="day-content">
-          <div class="meals-list">${mealsHTML}</div>
+          ${contentHTML}
           ${day.prep ? `<div class="day-prep"><span class="prep-badge">${day.prep}</span></div>` : ''}
         </div>
       </div>
@@ -122,7 +142,7 @@ function renderShopping(data) {
   // Generate shopping list from plan items with prep
   const items = data.plan.days
     .filter(d => d.prep && d.prep !== '—' && d.prep !== '')
-    .map(d => ({ name: d.prep, forMeal: d.meals ? d.meals.map(m => m.name).join(' + ') : '' }));
+    .map(d => ({ name: d.prep, forMeal: [...(d.lunch || []), ...(d.dinner || [])].filter(m => !m.leftover).map(m => m.name).join(' + ') }));
 
   if (items.length === 0) {
     section.style.display = 'none';
@@ -222,7 +242,7 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
 // Load data
 async function init() {
   try {
-    const resp = await fetch('data.json?v=2');
+    const resp = await fetch('data.json?v=3');
     const data = await resp.json();
     window._data = data;
     renderMenu(data);

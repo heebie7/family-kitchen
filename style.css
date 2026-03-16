@@ -110,27 +110,69 @@ header h1 {
   gap: 4px;
 }
 
+.meal-section {
+  margin-bottom: 6px;
+}
+
+.meal-section:last-child {
+  margin-bottom: 0;
+}
+
+.meal-section + .meal-section {
+  border-top: 2px solid var(--border);
+  padding-top: 6px;
+}
+
+.meal-section-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
 .meals-list {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
 }
 
 .meal-item {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 4px 0;
+  padding: 3px 0;
 }
 
 .meal-item:not(:last-child) {
   border-bottom: 1px solid var(--border);
-  padding-bottom: 8px;
+  padding-bottom: 6px;
 }
 
 .meal-item.done .meal-name {
   text-decoration: line-through;
   opacity: 0.5;
+}
+
+.meal-item.leftover {
+  opacity: 0.6;
+}
+
+.meal-item.leftover .meal-name {
+  font-weight: 600;
+}
+
+.leftover-badge {
+  display: inline-flex;
+  align-items: center;
+  background: #f5f0eb;
+  color: var(--text-muted);
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 20px;
+  white-space: nowrap;
 }
 
 .meal-emoji {
