@@ -1394,6 +1394,11 @@
       {
         "dish": "Плов",
         "cook": false
+      },
+      {
+        "dish": "Салат из тунца",
+        "cook": true,
+        "part": "whole"
       }
     ]
   }
