@@ -35,19 +35,19 @@ function getDishEmoji(name) {
 
 function getCookClass(cook) {
   const c = cook.toLowerCase().trim();
-  if (c.includes('тима') || c === 'т') return 'tima';
-  if (c.includes('катя') || c === 'к') return 'katya';
+  if (c === 'т') return 'cook-t';
+  if (c === 'к') return 'cook-k';
   if (c.includes('все') || c.includes('вместе')) return 'all';
-  if (c.includes('бабушк') || c.includes('оля')) return 'olya';
+  if (c.includes('бабушк')) return 'cook-b';
   return 'a';
 }
 
 function getCookLabel(cook) {
   const c = cook.toLowerCase().trim();
-  if (c.includes('тима') || c === 'т') return 'Тима';
-  if (c.includes('катя') || c === 'к') return 'Катя';
+  if (c === 'т') return 'Т';
+  if (c === 'к') return 'К';
   if (c.includes('все') || c.includes('вместе')) return 'Все вместе';
-  if (c.includes('бабушк') || c.includes('оля')) return 'Оля';
+  if (c.includes('бабушк')) return 'бабушка';
   if (c === 'а' || c.includes('мам')) return 'А';
   return cook;
 }
@@ -371,7 +371,7 @@ function renderDishes(data) {
         </div>
         <div class="dish-item-scores">
           <span class="score-pill ${scoreClass(avg)}" title="Средний вкус">${avg > 0 ? avg.toFixed(1) : '—'}</span>
-          <span class="score-pill ${scoreClass(tasteT)}" title="Тима">${tasteT !== '—' ? 'Т' + tasteT : ''}</span>
+          <span class="score-pill ${scoreClass(tasteT)}" title="вкус Т">${tasteT !== '—' ? 'Т' + tasteT : ''}</span>
         </div>
       </div>
     `;

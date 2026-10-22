@@ -209,11 +209,11 @@ header h1 {
   border-radius: 20px;
 }
 
-.cook-badge.tima { background: #fff3e0; color: #e65100; }
-.cook-badge.katya { background: #f3e5f5; color: #7b1fa2; }
+.cook-badge.cook-t { background: #fff3e0; color: #e65100; }
+.cook-badge.cook-k { background: #f3e5f5; color: #7b1fa2; }
 .cook-badge.a { background: var(--blue-light); color: var(--blue); }
 .cook-badge.all { background: var(--green-light); color: var(--green); }
-.cook-badge.olya { background: #fce4ec; color: #c2185b; }
+.cook-badge.cook-b { background: #fce4ec; color: #c2185b; }
 
 .prep-badge {
   display: inline-flex;
